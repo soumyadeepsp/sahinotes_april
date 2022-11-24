@@ -3,6 +3,9 @@ const app = express(); //server instance
 const port = 8000;
 const expressEjsLayouts = require('express-ejs-layouts');
 require('./config/mongoose');
+const cookieParser = require('cookie-parser');
+const passport = require('passport');
+const passportLocal = require('./config/passport-local-strategy');
 
 app.use(expressEjsLayouts);
 
@@ -11,6 +14,9 @@ app.set('views', './views');
 
 app.set('layout extractStyles', true);
 app.set('layout extractScripts', true);
+
+app.use(express.urlencoded()); //helps in making POST api calls
+app.use(cookieParser()); //helps in putting cookies to req and taking from res
 
 app.use(express.static('./assets'));
 app.use('/', require('./routes'));

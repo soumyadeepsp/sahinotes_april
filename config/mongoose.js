@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const url = "mongodb+srv://soumyadeepsp:CodingNinjas1@cluster0.sd6en9b.mongodb.net/?retryWrites=true&w=majority"
+const url = "mongodb://localhost/sahinotes_development";
 
 mongoose.connect(url);
 
