@@ -1,7 +1,11 @@
 const User = require('../models/users');
 
 module.exports.profile = (req, res) => {
-    res.render('profile');
+    if (req.isAuthenticated()) {
+        return res.render('profile');
+    } else {
+        return res.render('signin');
+    }
 }
 
 module.exports.signup = (req, res) => {
@@ -40,7 +44,15 @@ module.exports.create = (req, res) => {
         }
     });
 }
+// notes and notelists schemas dont have any records till now
 
 module.exports.createSession = (req, res) => {
+    return res.redirect('/users/profile');
+}
 
+module.exports.logout = (req, res) => {
+    req.logout(function(err) {
+        if (err) {console.log('Error in logging out: ', err); return;}
+    });
+    return res.redirect('/users/signin');
 }
