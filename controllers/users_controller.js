@@ -56,3 +56,43 @@ module.exports.logout = (req, res) => {
     });
     return res.redirect('/users/signin');
 }
+
+module.exports.verifyMobile = (req, res) => {
+    return res.render('verify_mobile');
+}
+
+module.exports.sendOtpMessage = (req, res) => {
+    // send the otp message
+    const mobilenumber = req.mobileNumber;
+    const userEmail = req.user.email;
+    API_KEY = "SVZdWQo2lMrjBcaughGY5Aey4CKtxqRiTnJ0m7IU6wvkDL8H3p3MvyUhaGzpqkRxrwY8iTQK649l7JOS"
+
+    const fast2sms = require('fast-two-sms');
+    const otp = Math.floor(Math.random()*9000) + 1000;
+
+    var options = {
+        authorization : API_KEY ,
+        message : `Your OTP is ${otp}` , 
+        numbers : [mobilenumber]
+    } 
+
+    async function sendOtpMessage() {
+        var res = await fast2sms.sendMessage(options);
+        if (res) {
+            console.log(res);
+            User.findOneAndUpdate({email: userEmail}, {mobileOtp: otp}, function(err, user) {
+                if (err) {console.log('Error in saving otp: ', err); return;}
+                user.save();
+            })
+        } else {
+            console.log('balance over');
+        }
+    }
+    // sendOtpMessage();
+    console.log('hello world');
+    return res.redirect('verify_mobile');
+}
+
+module.exports.verifyOtp = (req, res) => {
+    
+}

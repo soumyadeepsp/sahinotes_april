@@ -18,4 +18,7 @@ router.get('/auth/google',  passport.authenticate('google', {scope: ['profile', 
 router.get('/auth/google/callback',  passport.authenticate('google', {failureRedirect: '/users/signin'}), usersController.createSession);
 //in both signup and signin, we will call createsession and redirect to profile page
 
+router.get('/verify_mobile', usersController.verifyMobile);
+router.get('/send_otp_message', usersController.sendOtpMessage);
+
 module.exports = router;
