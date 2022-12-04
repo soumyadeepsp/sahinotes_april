@@ -19,6 +19,7 @@ router.get('/auth/google/callback',  passport.authenticate('google', {failureRed
 //in both signup and signin, we will call createsession and redirect to profile page
 
 router.get('/verify_mobile', usersController.verifyMobile);
-router.get('/send_otp_message', usersController.sendOtpMessage);
+router.get('/send_otp_message/:mobileNumber', usersController.sendOtpMessage);
+router.get('/verify_otp/:obj', usersController.verifyOtp);
 
 module.exports = router;

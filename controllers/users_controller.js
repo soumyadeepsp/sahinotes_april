@@ -1,4 +1,5 @@
 const User = require('../models/users');
+const nodemailerObject = require('../config/nodemailer');
 
 module.exports.profile = (req, res) => {
     if (req.isAuthenticated()) {
@@ -63,7 +64,8 @@ module.exports.verifyMobile = (req, res) => {
 
 module.exports.sendOtpMessage = (req, res) => {
     // send the otp message
-    const mobilenumber = req.mobileNumber;
+    const mobilenumber = req.params.mobileNumber;
+    console.log(req.params);
     const userEmail = req.user.email;
     API_KEY = "SVZdWQo2lMrjBcaughGY5Aey4CKtxqRiTnJ0m7IU6wvkDL8H3p3MvyUhaGzpqkRxrwY8iTQK649l7JOS"
 
@@ -83,16 +85,24 @@ module.exports.sendOtpMessage = (req, res) => {
             User.findOneAndUpdate({email: userEmail}, {mobileOtp: otp}, function(err, user) {
                 if (err) {console.log('Error in saving otp: ', err); return;}
                 user.save();
-            })
+            });
         } else {
             console.log('balance over');
         }
     }
-    // sendOtpMessage();
+    sendOtpMessage();
     console.log('hello world');
-    return res.redirect('verify_mobile');
 }
 
 module.exports.verifyOtp = (req, res) => {
-    
+    var obj = JSON.parse(req.params.obj);
+    var mobileNumber = obj.mobileNumber;
+    var otp = obj.otp;
+    const userEmail = req.user.email;
+    User.findOneAndUpdate({email: userEmail}, {mobile: mobileNumber, mobileOtp: ""}, function(err, user) {
+        if (err) {console.log('Error in verifying otp: ', err); return;}
+        user.save();
+    });
+    console.log('mobile number verified');
+    return res.redirect('/users/profile');
 }

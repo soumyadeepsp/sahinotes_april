@@ -11,6 +11,7 @@ const session = require('express-session');
 // cookie-parser helps in storing those cookies in the rrequest and getting it back from response
 const mongoStore = require('connect-mongo');
 require('./config/passport-google-strategy');
+require('./config/nodemailer');
 
 app.use(expressEjsLayouts);
 
