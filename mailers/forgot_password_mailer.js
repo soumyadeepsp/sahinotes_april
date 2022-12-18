@@ -1,14 +1,17 @@
 const nodemailer = require('nodemailer');
+const nodemailerObject = require('../config/nodemailer');
 
 module.exports.forgotPassword = (data) => {
-    nodemailer.transporter.sendMail({
+    //fetching user from controller
+    nodemailerObject.transporter.sendMail({
         from: 'soumyadeepsp@gmail.com',
         to: data.email,
         subject: 'Reset your password',
-        html: '<h3>Click on the link to reset your password</h3>'
+        html: `<p>Click on this <a href="${data.url}">link</a> to reset password!</p>`
     }, function(err, data) {
         if (err) {console.log('Error in sending email: ', err); return;}
         console.log('Mail sent successfully');
         return;
     });
+    return res.redirect('/users/signin');
 }

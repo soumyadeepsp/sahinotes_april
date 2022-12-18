@@ -22,4 +22,8 @@ router.get('/verify_mobile', usersController.verifyMobile);
 router.get('/send_otp_message/:mobileNumber', usersController.sendOtpMessage);
 router.get('/verify_otp/:obj', usersController.verifyOtp);
 
+router.get('/update_password', usersController.update_password);
+router.get('/forgot_password', usersController.forgot_password);
+router.post('/update_password', usersController.update_password_post);
+router.post('/forgot_password', usersController.forgot_password_post);
 module.exports = router;

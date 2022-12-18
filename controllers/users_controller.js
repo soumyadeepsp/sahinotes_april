@@ -1,6 +1,6 @@
 const User = require('../models/users');
-const nodemailerObject = require('../config/nodemailer');
 const accountCreatedMailer = require('../mailers/account_created_mailer');
+const forgotPasswordMailer = require('../mailers/forgot_password_mailer');
 
 module.exports.profile = (req, res) => {
     if (req.isAuthenticated()) {
@@ -16,6 +16,14 @@ module.exports.signup = (req, res) => {
 
 module.exports.signin = (req, res) => {
     res.render('signin');
+}
+
+module.exports.forgot_password = (req, res) => {
+    res.render('forgot_password');
+}
+
+module.exports.update_password = (req, res) => {
+    res.render('update_password');
 }
 
 module.exports.create = (req, res) => {
@@ -108,4 +116,48 @@ module.exports.verifyOtp = (req, res) => {
     });
     console.log('mobile number verified');
     return;
+}
+
+module.exports.forgot_password_post = (req, res) => {
+    var email = req.body.email;
+    var token = Math.floor(Math.random()*9000) + 1000;
+    var accessToken = email + token;
+    User.findOneAndUpdate({email: email}, {accessToken: accessToken}, function(err, user) {
+        if (err) {console.log('Error in finding user in forgot password post: ', err); return;}
+        if (!user) {
+            console.log('User not found');
+        } else {
+            user.save();
+            var obj = {};
+            obj.email = user.email;
+            obj.url = `http://localhost:8000/users/update_password?accessToken=${accessToken}`
+            forgotPasswordMailer.forgotPassword(obj);
+        }
+    })
+}
+
+module.exports.update_password_post = (req, res) => {
+    //extract email id and accessToken
+    //check if accessToken is present in the user with that email id
+    var password = req.body.password;
+    var confirm_password = req.body.confirm_password;
+    var accessToken = req.body.accessToken;
+    console.log(password, confirm_password, accessToken);
+    if (password!=confirm_password) {
+        console.log('passwords dont match');
+        return res.redirect('back');
+    } else {
+        var email = accessToken.substring(0, accessToken.length-4);
+        console.log(email);
+        User.findOne({email: email}, function(err, user) {
+            if (err) {console.log('Error in finding user: ', err); return;}
+            if (accessToken==user.accessToken) {
+                User.findOneAndUpdate({email: email}, {password: password, accessToken: null}, function(err, user) {
+                    if (err) {console.log('Error in finding user: ', err); return;}
+                    user.save();
+                });
+            }
+        });
+        return res.redirect('/users/signin');
+    }
 }

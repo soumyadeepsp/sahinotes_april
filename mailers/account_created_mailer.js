@@ -3,6 +3,7 @@ const nodemailerObject = require('../config/nodemailer');
 
 module.exports.accountCreated = (user) => {
     //fetching user from controller
+    //__dirname this gives the current position
     var htmlString = nodemailerObject.renderTemplate(user, __dirname+'/../views/mailers/account_created_template.ejs');
     console.log(htmlString);
     nodemailerObject.transporter.sendMail({
