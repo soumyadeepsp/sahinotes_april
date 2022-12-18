@@ -1,5 +1,6 @@
 const User = require('../models/users');
 const nodemailerObject = require('../config/nodemailer');
+const accountCreatedMailer = require('../mailers/account_created_mailer');
 
 module.exports.profile = (req, res) => {
     if (req.isAuthenticated()) {
@@ -38,6 +39,8 @@ module.exports.create = (req, res) => {
                 if (err) {console.log('Error in creating user in create controller: ', err);
                     return res.redirect('back')
                 }
+                // i should send the email(user.email)
+                accountCreatedMailer.accountCreated(user);
                 return res.redirect('/users/signin');
             });
         } else {
@@ -104,5 +107,5 @@ module.exports.verifyOtp = (req, res) => {
         user.save();
     });
     console.log('mobile number verified');
-    return res.redirect('/users/profile');
+    return;
 }
