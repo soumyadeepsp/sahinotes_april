@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 
 const noteSchema = new mongoose.Schema({
     name: {type: String, require: true},
-    file: {type: String, require: true},
+    about: {type: String, require: true},
+    file: {type: String, require: true}, // /uploads/notes/physics.pdf
     user: {type: mongoose.Schema.Types.ObjectId, require: true, ref: 'User'},
 }, {
     timestamps: true

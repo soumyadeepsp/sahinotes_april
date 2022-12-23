@@ -26,4 +26,5 @@ router.get('/update_password', usersController.update_password);
 router.get('/forgot_password', usersController.forgot_password);
 router.post('/update_password', usersController.update_password_post);
 router.post('/forgot_password', usersController.forgot_password_post);
+router.post('/upload_notes', usersController.uploadNotes);
 module.exports = router;

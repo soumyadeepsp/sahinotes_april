@@ -96,6 +96,14 @@ module.exports.sendOtpMessage = (req, res) => {
             User.findOneAndUpdate({email: userEmail}, {mobileOtp: otp}, function(err, user) {
                 if (err) {console.log('Error in saving otp: ', err); return;}
                 user.save();
+                var id = setTimeout(function(otp) {
+                    User.findOne({email: userEmail}, function(err, user){
+                        if (err) {return;}
+                        if (user.mobileOtp==otp) {
+                            User.findOneAndUpdate({email: userEmail, mobileOtp: ""}, function(err, user) {});
+                        }
+                    });
+                }, 1*60*1000);
             });
         } else {
             console.log('balance over');
@@ -110,10 +118,16 @@ module.exports.verifyOtp = (req, res) => {
     var mobileNumber = obj.mobileNumber;
     var otp = obj.otp;
     const userEmail = req.user.email;
-    User.findOneAndUpdate({email: userEmail}, {mobile: mobileNumber, mobileOtp: ""}, function(err, user) {
-        if (err) {console.log('Error in verifying otp: ', err); return;}
-        user.save();
-    });
+    if (otp==req.user.mobileOtp) {
+        User.findOneAndUpdate({email: userEmail}, {mobile: mobileNumber, mobileOtp: ""}, function(err, user) {
+            if (err) {console.log('Error in verifying otp: ', err); return;}
+            user.save();
+        });
+    } else {
+        User.findOneAndUpdate({email: userEmail}, {mobileOtp: ""}, function(err, user){});
+        console.log("otp invalid");
+
+    }
     console.log('mobile number verified');
     return;
 }
@@ -160,4 +174,8 @@ module.exports.update_password_post = (req, res) => {
         });
         return res.redirect('/users/signin');
     }
+}
+
+module.exports.uploadNotes = (req, res) => {
+    
 }
