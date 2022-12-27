@@ -4,8 +4,8 @@ const crypto = require('crypto');
 const User = require('../models/users');
 
 passport.use(new googleStrategy({
-    clientID: '1048626114643-ikmsqg0j9pdlf2dkhcmavv7soo7oh03d.apps.googleusercontent.com',
-    clientSecret: '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',
+    clientID: '1011703805644-0bd3gm5uo9unqsvk3aaepqehr8nntunk.apps.googleusercontent.com',
+    clientSecret: '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',
     callbackURL: 'http://localhost:8000/users/auth/google/callback'
 }, function(accessToken, refreshToken, profile, done) {
     User.find({email: profile.emails[0].value}, function(err, user) {

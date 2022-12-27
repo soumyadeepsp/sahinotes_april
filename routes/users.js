@@ -6,11 +6,12 @@ const usersController = require('../controllers/users_controller');
 
 router.get('/profile', usersController.profile);
 router.get('/signin', usersController.signin); //browser is calling
+router.get('/signin_failure', usersController.signinFailure); //server is calling
 router.get('/signup', usersController.signup); //browser is calling
 
 router.post('/create', usersController.create);
 //called create during signup and then redirected to sign in page
-router.post('/create_session', passport.authenticate('local', {failureRedirect: '/users/signin'}) ,usersController.createSession);
+router.post('/create_session', passport.authenticate('local', {failureRedirect: '/users/signin_failure'}) ,usersController.createSession);
 //called create session during signin and thenr edirected to profile page
 
 router.get('/logout', usersController.logout);

@@ -7,6 +7,7 @@ passport.use(new localStrategy({usernameField: 'email'}, function(email, passwor
         if (err) {console.log('Error in finding user in passport: ', err); return done(err, false);}
         if (!user || password!=user.password) {
             console.log('Invalid email or password');
+            // send notfication for signin failure
             return done(null, false);
         }
         return done(null, user);
@@ -14,7 +15,7 @@ passport.use(new localStrategy({usernameField: 'email'}, function(email, passwor
 }));
 
 passport.serializeUser(function(user, done) {
-    done(null, user.id);
+    done(null, user._id);
 });
 
 passport.deserializeUser(function(id, done) {

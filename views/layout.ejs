@@ -2,6 +2,8 @@
     <head>
         <link rel="stylesheet" type="text/css" href="/css/layout.css">
         <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.css">
         <%- style %>
     </head>
     <body>
@@ -9,5 +11,28 @@
         <%- body %>
         <%- include('_footer'); %>
         <%- script %>
+        <!-- <% if (flash.success && flash.success.length==1) { %>
+            <p><%= flash.success %></p>
+        <% } %> -->
+        <script>
+            <% if (flash.success && flash.success.length==1) { %>
+                new Noty({
+                    theme: 'relax',
+                    text: '<%= flash.success %>',
+                    timeout: 1000,
+                    type: 'success',
+                    layout: 'topRight'
+                }).show();
+            <% } %>
+            <% if (flash.error && flash.error.length==1) { %>
+                new Noty({
+                    theme: 'relax',
+                    text: '<%= flash.error %>',
+                    timeout: 1000,
+                    type: 'error',
+                    layout: 'topRight'
+                }).show();
+            <% } %> 
+        </script>
     </body>
 </html>

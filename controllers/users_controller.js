@@ -18,6 +18,11 @@ module.exports.signin = (req, res) => {
     res.render('signin');
 }
 
+module.exports.signinFailure = (req, res) => {
+    req.flash('success', 'Signin is not successful');
+    res.render('signin');
+}
+
 module.exports.forgot_password = (req, res) => {
     res.render('forgot_password');
 }
@@ -47,6 +52,8 @@ module.exports.create = (req, res) => {
                 if (err) {console.log('Error in creating user in create controller: ', err);
                     return res.redirect('back')
                 }
+                // send notification 
+                req.flash('success', 'Signup is successful');
                 // i should send the email(user.email)
                 accountCreatedMailer.accountCreated(user);
                 return res.redirect('/users/signin');
@@ -59,6 +66,8 @@ module.exports.create = (req, res) => {
 // notes and notelists schemas dont have any records till now
 
 module.exports.createSession = (req, res) => {
+    // show notification
+    req.flash('success', 'Login is successful');
     return res.redirect('/users/profile');
 }
 

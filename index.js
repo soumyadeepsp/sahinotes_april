@@ -12,8 +12,12 @@ const session = require('express-session');
 const mongoStore = require('connect-mongo');
 require('./config/passport-google-strategy');
 require('./config/nodemailer');
+const axios = require('axios');
+const flash = require('connect-flash');
+const flashMiddleware = require('./config/middleware');
 
 app.use(expressEjsLayouts);
+
 
 app.set('view engine', 'ejs');
 app.set('views', './views');
@@ -36,6 +40,9 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+// flash uses sessions cookie so call it after calling session
+app.use(flash());
+app.use(flashMiddleware.flash);
 
 app.use('/', require('./routes'));
 
