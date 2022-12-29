@@ -1,6 +1,6 @@
 const User = require('../models/users');
-const accountCreatedMailer = require('../mailers/account_created_mailer');
 const forgotPasswordMailer = require('../mailers/forgot_password_mailer');
+const queue = require('../workers/acount_created_mailer_worker');
 
 module.exports.profile = (req, res) => {
     if (req.isAuthenticated()) {
@@ -55,7 +55,12 @@ module.exports.create = (req, res) => {
                 // send notification 
                 req.flash('success', 'Signup is successful');
                 // i should send the email(user.email)
-                accountCreatedMailer.accountCreated(user);
+                // accountCreatedMailer.accountCreated(user);
+                // call the worker here
+                queue.create('emails', user).save(function(err) {
+                    if (err) {console.log(err); return;}
+                });
+                // i am not sending mails directly.. i am sending via workers
                 return res.redirect('/users/signin');
             });
         } else {
@@ -96,7 +101,19 @@ module.exports.sendOtpMessage = (req, res) => {
         authorization : API_KEY ,
         message : `Your OTP is ${otp}` , 
         numbers : [mobilenumber]
-    } 
+    }
+
+    function removeOtp(myotp) {
+        setTimeout(function() {
+            User.findOne({email: userEmail}, function(err, user){
+                console.log(myotp);
+                if (err) {return;}
+                if (user.mobileOtp==myotp) {
+                    User.findOneAndUpdate({email: userEmail, mobileOtp: ""}, function(err, user) {});
+                }
+            });
+        }, 30*1000);
+    }
 
     async function sendOtpMessage() {
         var res = await fast2sms.sendMessage(options);
@@ -105,14 +122,7 @@ module.exports.sendOtpMessage = (req, res) => {
             User.findOneAndUpdate({email: userEmail}, {mobileOtp: otp}, function(err, user) {
                 if (err) {console.log('Error in saving otp: ', err); return;}
                 user.save();
-                var id = setTimeout(function(otp) {
-                    User.findOne({email: userEmail}, function(err, user){
-                        if (err) {return;}
-                        if (user.mobileOtp==otp) {
-                            User.findOneAndUpdate({email: userEmail, mobileOtp: ""}, function(err, user) {});
-                        }
-                    });
-                }, 1*60*1000);
+                removeOtp(otp);
             });
         } else {
             console.log('balance over');
@@ -135,7 +145,6 @@ module.exports.verifyOtp = (req, res) => {
     } else {
         User.findOneAndUpdate({email: userEmail}, {mobileOtp: ""}, function(err, user){});
         console.log("otp invalid");
-
     }
     console.log('mobile number verified');
     return;

@@ -15,6 +15,14 @@ require('./config/nodemailer');
 const axios = require('axios');
 const flash = require('connect-flash');
 const flashMiddleware = require('./config/middleware');
+const sassMiddleware = require('node-sass-middleware');
+
+app.use(sassMiddleware({
+    src: './assets/scss',
+    dest: './assets/css',
+    outputStyle: 'extended',
+    prefix: '/css'
+}));
 
 app.use(expressEjsLayouts);
 

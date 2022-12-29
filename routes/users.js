@@ -11,7 +11,7 @@ router.get('/signup', usersController.signup); //browser is calling
 
 router.post('/create', usersController.create);
 //called create during signup and then redirected to sign in page
-router.post('/create_session', passport.authenticate('local', {failureRedirect: '/users/signin_failure'}) ,usersController.createSession);
+router.post('/create_session', passport.authenticate('local', {failureRedirect: '/users/signin', failureFlash: 'Signin is not successful'}) ,usersController.createSession);
 //called create session during signin and thenr edirected to profile page
 
 router.get('/logout', usersController.logout);
