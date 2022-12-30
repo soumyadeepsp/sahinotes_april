@@ -1,6 +1,7 @@
 const User = require('../models/users');
 const forgotPasswordMailer = require('../mailers/forgot_password_mailer');
 const queue = require('../workers/acount_created_mailer_worker');
+const Note = require('../models/notes');
 
 module.exports.profile = (req, res) => {
     if (req.isAuthenticated()) {
@@ -195,5 +196,29 @@ module.exports.update_password_post = (req, res) => {
 }
 
 module.exports.uploadNotes = (req, res) => {
-    
+    var id = req.user.id;
+    console.log(id);
+    // all the form data comes in req.body
+    Note.create({
+        name: req.body.name,
+        about: req.body.about,
+        file: "",
+        user: id
+    }, function(err, note) {
+        if (err) {console.log('Error in creating new note: ', err); return;}
+        //statics function cannot be called via object but just via schema
+        Note.uploadedFile(req, res, function(err) {
+            if(err) {console.log('Error in saving file: ', err); return;}
+            if (req.file) {
+                note.file = req.file.filename;
+                note.save();
+                User.findById(id, function(err, user) {
+                    if (err) {console.log('Error in adding file to user: ', err); return;}
+                    user.notes.push(note.id);
+                    user.save();
+                });
+            }
+        });
+    });
+    return res.render('profile');
 }
