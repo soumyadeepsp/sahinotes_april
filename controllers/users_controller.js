@@ -222,3 +222,34 @@ module.exports.uploadNotes = (req, res) => {
     });
     return res.render('profile');
 }
+
+module.exports.show_all_notes = (req, res) => {
+    console.log("inside show_all_notes");
+    var id = req.user.id;
+    User.findById(id, async (err, user) => {
+        if (err) {console.log('Error in finding user in show_all_notes: ', err); return;}
+        var notesids = user.notes;
+        var result = [];
+        for (var i=0; i<notesids.length; i++) {
+            // Note.findById(notesids[i], (err, note) => {
+            //     if (err) {console.log('Error in finding note: ', err); return;}
+            //     result.push(note);
+            // });
+            try {
+                var note = await Note.findById(notesids[i]);
+                result.push(note);
+            } catch(err) {
+                console.log('Error in finding note: ', err);
+            }
+        }
+        console.log(result.length);
+        return res.status(200).json(result);
+    });
+}
+
+module.exports.show_single_notes = (req, res) => {
+    var filepath = req.params.filepath;
+    return res.render('notes', {
+        filepath: filepath
+    });
+}

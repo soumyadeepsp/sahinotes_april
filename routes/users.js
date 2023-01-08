@@ -28,4 +28,7 @@ router.get('/forgot_password', usersController.forgot_password);
 router.post('/update_password', usersController.update_password_post);
 router.post('/forgot_password', usersController.forgot_password_post);
 router.post('/upload_notes', usersController.uploadNotes);
+
+router.get('/show_all_notes', usersController.show_all_notes);
+router.get('/show_single_notes/:filepath', usersController.show_single_notes);
 module.exports = router;
