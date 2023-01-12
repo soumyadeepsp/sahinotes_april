@@ -211,6 +211,8 @@ module.exports.uploadNotes = (req, res) => {
             if(err) {console.log('Error in saving file: ', err); return;}
             if (req.file) {
                 note.file = req.file.filename;
+                note.name = req.body.name;
+                note.about = req.body.about;
                 note.save();
                 User.findById(id, function(err, user) {
                     if (err) {console.log('Error in adding file to user: ', err); return;}
@@ -220,7 +222,7 @@ module.exports.uploadNotes = (req, res) => {
             }
         });
     });
-    return res.render('profile');
+    return res.redirect('profile');
 }
 
 module.exports.show_all_notes = (req, res) => {
@@ -248,8 +250,38 @@ module.exports.show_all_notes = (req, res) => {
 }
 
 module.exports.show_single_notes = (req, res) => {
-    var filepath = req.params.filepath;
+    var filename = req.params.x;
     return res.render('notes', {
-        filepath: filepath
+        filename: filename
     });
+}
+
+module.exports.likeNotes = (req, res) => {
+    var userId = req.user.id;
+    var noteName = req.params.noteName;
+    User.findById(userId, async (err, user) => {
+        if (err) {console.log('Error in finding user in likeNotes: ', err); return;}
+        try {
+            console.log("noteName = ",noteName);
+            var note = await Note.findOne({file: noteName});
+            if (!user.likedNotes.includes(note._id)) {
+                user.likedNotes.push(note._id);
+            }
+            if (!note.likedUsers.includes(userId)) {
+                note.likedUsers.push(userId);
+            }
+            note.save();
+            user.save();
+        } catch(err) {
+            console.log('error in finding not in likeNotes: ', err);
+        }
+    });
+}
+
+module.exports.numberOfLikes = (req, res) => {
+    var noteName = req.params.noteName;
+    Note.findOne({file: noteName}, (err, note) => {
+        if (err) {console.log(err); return;}
+        return res.status(200).json(note.likedUsers.length);
+    })
 }

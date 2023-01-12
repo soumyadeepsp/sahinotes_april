@@ -7,7 +7,8 @@ const userSchema = new mongoose.Schema({
     mobileOtp: {type: String},
     mobile: {type: String},
     accessToken: {type: String, default: null},
-    notes: [{type: mongoose.Schema.Types.ObjectId, ref: 'Note'}]
+    notes: [{type: mongoose.Schema.Types.ObjectId, ref: 'Note'}],
+    likedNotes: [{type: mongoose.Schema.Types.ObjectId, ref: 'Note'}]
 }, {
     timestamps: true
 });

@@ -37,6 +37,7 @@ app.use(express.urlencoded()); //helps in making POST api calls
 app.use(cookieParser()); //helps in putting cookies to req and taking from res
 
 app.use(express.static('./assets'));
+app.use('/uploads/notes', express.static('/uploads/notes'));
 
 app.use(session({
     name: 'sahinotes',
