@@ -1,13 +1,21 @@
 let btn = document.getElementById('btn');
 var notes_view = document.getElementById('notes_view');
+
+function removeChildElements(htmlElement) {
+  while (htmlElement.firstChild) {
+    htmlElement.removeChild(htmlElement.firstChild);
+  }
+}
+
 btn.addEventListener('click', () => {
     fetch('/users/show_all_notes')
   .then((response) => response.json())
   .then((notes) => {
-    console.log(notes);
+    removeChildElements(notes_view);
     for (var i=0; i<notes.length; i++) {
         var new_div = document.createElement('div');
         var new_note_id = document.createElement('p');
+        console.log(notes[i].name);
         new_note_id.innerHTML = notes[i].name;
         new_div.appendChild(new_note_id);
         new_div.style.border = '1px solid black';

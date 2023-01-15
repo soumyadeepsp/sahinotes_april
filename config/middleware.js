@@ -3,6 +3,5 @@ module.exports.flash = (req, res, next) => {
         'success': req.flash('success'),
         'error': req.flash('error')
     }
-    console.log(res.locals.flash.success);
     next();
 }

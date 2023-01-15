@@ -91,7 +91,6 @@ module.exports.verifyMobile = (req, res) => {
 module.exports.sendOtpMessage = (req, res) => {
     // send the otp message
     const mobilenumber = req.params.mobileNumber;
-    console.log(req.params);
     const userEmail = req.user.email;
     API_KEY = "SVZdWQo2lMrjBcaughGY5Aey4CKtxqRiTnJ0m7IU6wvkDL8H3p3MvyUhaGzpqkRxrwY8iTQK649l7JOS"
 
@@ -107,7 +106,6 @@ module.exports.sendOtpMessage = (req, res) => {
     function removeOtp(myotp) {
         setTimeout(function() {
             User.findOne({email: userEmail}, function(err, user){
-                console.log(myotp);
                 if (err) {return;}
                 if (user.mobileOtp==myotp) {
                     User.findOneAndUpdate({email: userEmail, mobileOtp: ""}, function(err, user) {});
@@ -119,7 +117,6 @@ module.exports.sendOtpMessage = (req, res) => {
     async function sendOtpMessage() {
         var res = await fast2sms.sendMessage(options);
         if (res) {
-            console.log(res);
             User.findOneAndUpdate({email: userEmail}, {mobileOtp: otp}, function(err, user) {
                 if (err) {console.log('Error in saving otp: ', err); return;}
                 user.save();
@@ -130,7 +127,6 @@ module.exports.sendOtpMessage = (req, res) => {
         }
     }
     sendOtpMessage();
-    console.log('hello world');
 }
 
 module.exports.verifyOtp = (req, res) => {
@@ -175,13 +171,11 @@ module.exports.update_password_post = (req, res) => {
     var password = req.body.password;
     var confirm_password = req.body.confirm_password;
     var accessToken = req.body.accessToken;
-    console.log(password, confirm_password, accessToken);
     if (password!=confirm_password) {
         console.log('passwords dont match');
         return res.redirect('back');
     } else {
         var email = accessToken.substring(0, accessToken.length-4);
-        console.log(email);
         User.findOne({email: email}, function(err, user) {
             if (err) {console.log('Error in finding user: ', err); return;}
             if (accessToken==user.accessToken) {
@@ -197,7 +191,6 @@ module.exports.update_password_post = (req, res) => {
 
 module.exports.uploadNotes = (req, res) => {
     var id = req.user.id;
-    console.log(id);
     // all the form data comes in req.body
     Note.create({
         name: req.body.name,
@@ -226,17 +219,12 @@ module.exports.uploadNotes = (req, res) => {
 }
 
 module.exports.show_all_notes = (req, res) => {
-    console.log("inside show_all_notes");
     var id = req.user.id;
     User.findById(id, async (err, user) => {
         if (err) {console.log('Error in finding user in show_all_notes: ', err); return;}
         var notesids = user.notes;
         var result = [];
         for (var i=0; i<notesids.length; i++) {
-            // Note.findById(notesids[i], (err, note) => {
-            //     if (err) {console.log('Error in finding note: ', err); return;}
-            //     result.push(note);
-            // });
             try {
                 var note = await Note.findById(notesids[i]);
                 result.push(note);
@@ -244,13 +232,13 @@ module.exports.show_all_notes = (req, res) => {
                 console.log('Error in finding note: ', err);
             }
         }
-        console.log(result.length);
         return res.status(200).json(result);
     });
 }
 
 module.exports.show_single_notes = (req, res) => {
     var filename = req.params.x;
+    console.log(filename);
     return res.render('notes', {
         filename: filename
     });
@@ -262,7 +250,6 @@ module.exports.likeNotes = (req, res) => {
     User.findById(userId, async (err, user) => {
         if (err) {console.log('Error in finding user in likeNotes: ', err); return;}
         try {
-            console.log("noteName = ",noteName);
             var note = await Note.findOne({file: noteName});
             if (!user.likedNotes.includes(note._id)) {
                 user.likedNotes.push(note._id);
