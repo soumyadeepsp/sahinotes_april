@@ -19,9 +19,9 @@ btn.addEventListener('click', () => {
         new_note_id.innerHTML = notes[i].name;
         new_div.appendChild(new_note_id);
         new_div.style.border = '1px solid black';
-        var filename = notes[i].file;
         new_note_id.addEventListener('click', (e) => {
             console.log(e.target);
+            var filename = e.target.innerHTML;
             window.location = `/users/show_single_notes/${filename}`;
         });
         new_note_id.style.cursor = 'pointer';

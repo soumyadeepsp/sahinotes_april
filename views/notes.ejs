@@ -4,7 +4,7 @@
     <h1 id="note_name"><%=locals.filename%></h1>
 </div>
 <div id="display_notes">
-    <embed src="http://localhost:8000/uploads/notes/<%=locals.filename%>" width="400px" height="400px"/>
+    <iframe src="/uploads/notes/<%=locals.filename%>" width="400px" height="400px"></iframe>
 </div>
 <button id="like_button">like</button>
 <p id="likes"></p>

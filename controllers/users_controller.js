@@ -236,11 +236,13 @@ module.exports.show_all_notes = (req, res) => {
     });
 }
 
-module.exports.show_single_notes = (req, res) => {
-    var filename = req.params.x;
-    console.log(filename);
+module.exports.show_single_notes = async (req, res) => {
+    var name = req.params.x;
+    console.log(name);
+    var note = await Note.findOne({name: name});
+    var file = note.file;
     return res.render('notes', {
-        filename: filename
+        filename: file
     });
 }
 
@@ -266,8 +268,8 @@ module.exports.likeNotes = (req, res) => {
 }
 
 module.exports.numberOfLikes = (req, res) => {
-    var noteName = req.params.noteName;
-    Note.findOne({file: noteName}, (err, note) => {
+    var file = req.params.noteName;
+    Note.findOne({file: file}, (err, note) => {
         if (err) {console.log(err); return;}
         return res.status(200).json(note.likedUsers.length);
     })
