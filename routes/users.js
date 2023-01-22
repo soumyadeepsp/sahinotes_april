@@ -33,4 +33,7 @@ router.get('/show_all_notes', usersController.show_all_notes);
 router.get('/show_single_notes/:x', usersController.show_single_notes);
 router.put('/like_notes/:noteName', usersController.likeNotes);
 router.get('/get_number_of_likes/:noteName', usersController.numberOfLikes);
+
+router.post('/new_note_comment', usersController.addNewComment);
+router.get('/get_all_comments/:noteName', usersController.getComments);
 module.exports = router;

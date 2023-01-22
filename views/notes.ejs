@@ -4,8 +4,13 @@
     <h1 id="note_name"><%=locals.filename%></h1>
 </div>
 <div id="display_notes">
-    <iframe src="/uploads/notes/<%=locals.filename%>" width="400px" height="400px"></iframe>
+    <iframe href="/uploads/notes/<%=locals.filename%>" width="400px" height="400px"></iframe>
 </div>
 <button id="like_button">like</button>
 <p id="likes"></p>
+<input type="text" id="add_comment_to_note">
+<input type="submit" id="add_comment_to_note_btn" value="add comment">
+<div id="comments_section">
+
+</div>
 <script src="/js/notes.js"></script>

@@ -16,7 +16,9 @@ const axios = require('axios');
 const flash = require('connect-flash');
 const flashMiddleware = require('./config/middleware');
 const sassMiddleware = require('node-sass-middleware');
+const bodyParser = require('body-parser')
 
+app.use(bodyParser());
 app.use(sassMiddleware({
     src: './assets/scss',
     dest: './assets/css',

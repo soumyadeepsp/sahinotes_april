@@ -17,3 +17,38 @@ like_button.addEventListener('click', () => {
     })
     .catch((error) => console.log(error));
 });
+
+var add_comment_to_note = document.getElementById("add_comment_to_note");
+var add_comment_to_note_btn = document.getElementById("add_comment_to_note_btn");
+var comments_section = document.getElementById("comments_section");
+
+add_comment_to_note_btn.addEventListener("click", function() {
+    if (add_comment_to_note.value!="") {
+        var data = {
+            "file": note_name,
+            "text": add_comment_to_note.value,
+            "type": "Notes",
+            "comment": null
+        }
+        fetch(`/users/new_note_comment`, {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        add_comment_to_note.value = "";
+    }
+});
+
+function fetchAllComments() {
+    fetch(`/users/get_all_comments/${note_name}`)
+    .then((response) => response.json())
+    .then((comments_response) => {
+        console.log(comments_response);
+    });
+}
+fetchAllComments();

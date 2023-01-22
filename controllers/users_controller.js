@@ -2,6 +2,7 @@ const User = require('../models/users');
 const forgotPasswordMailer = require('../mailers/forgot_password_mailer');
 const queue = require('../workers/acount_created_mailer_worker');
 const Note = require('../models/notes');
+const Comment = require('../models/comments');
 
 module.exports.profile = (req, res) => {
     if (req.isAuthenticated()) {
@@ -273,4 +274,64 @@ module.exports.numberOfLikes = (req, res) => {
         if (err) {console.log(err); return;}
         return res.status(200).json(note.likedUsers.length);
     })
+}
+
+module.exports.getComments = (req, res) => {
+    //fetch all the comments for a note
+    var file = req.params.noteName;
+    Note.findOne({file: file}, async (err, note) => {
+        if (err) {console.log("Error in finding note in getComments: ", err); return;}
+        var comments_respone = {};
+        var parent_comment_ids = note.comments;
+        for (var i of parent_comment_ids) {
+            var parent_comment = await Comment.findById(i);
+            comments_respone[i] = {};
+            comments_respone[i]["text"] = parent_comment.text;
+            comments_respone[i]["child_comments"] = {};
+            for (var j of parent_comment.comments) {
+                var child_comment = await Comment.findById(j);
+                comments_respone[i]["child_comments"][j] = child_comment.text;
+            }
+        }
+        console.log(comments_respone);
+        return res.status(200).json(comments_respone);
+    });
+}
+
+module.exports.addNewComment = async (req, res) => {
+    //add a new comment to either a note/comment
+    var file = req.body.file;
+    var userId = req.user.id;
+    var text = req.body.text;
+    var note = await Note.findOne({file: file});
+    var noteId = note._id;
+    var type = req.body.type;
+    var comment = req.body.comment;
+    var new_comment = await Comment.create({
+        text: text,
+        note: noteId,
+        user: userId,
+        type: type,
+        comment: comment,
+        comments: []
+    });
+    User.findById(userId, async function(err, user) {
+        if (err) {console.log("Error in finding user in addNewComment: ", err); return;}
+        await user.comments.push(new_comment._id);
+        await user.save();
+    });
+    if (type=="Notes") {
+        Note.findById(noteId, async function(err, note) {
+            if (err) {console.log('Error in finding note in addNewComment: ', err); return;}
+            await note.comments.push(new_comment._id);
+            await note.save();
+        });
+    }
+    if (type=="Comments") {
+        Comment.findById(new_comment.comment, async function(err, comment) {
+            if (err) {console.log("Error in finding parent comment in addNewComment: ", err); return;}
+            await comment.comments.push(new_comment._id);
+            await comment.save();
+        })
+    }
 }
