@@ -299,7 +299,6 @@ module.exports.getComments = (req, res) => {
 }
 
 module.exports.addNewComment = async (req, res) => {
-    //add a new comment to either a note/comment
     var file = req.body.file;
     var userId = req.user.id;
     var text = req.body.text;
@@ -308,12 +307,7 @@ module.exports.addNewComment = async (req, res) => {
     var type = req.body.type;
     var comment = req.body.comment;
     var new_comment = await Comment.create({
-        text: text,
-        note: noteId,
-        user: userId,
-        type: type,
-        comment: comment,
-        comments: []
+        text: text, note: noteId, user: userId, type: type, comment: comment, comments: []
     });
     User.findById(userId, async function(err, user) {
         if (err) {console.log("Error in finding user in addNewComment: ", err); return;}

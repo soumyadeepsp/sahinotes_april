@@ -49,6 +49,20 @@ function fetchAllComments() {
     .then((response) => response.json())
     .then((comments_response) => {
         console.log(comments_response);
+        var keys = Object.keys(comments_response);
+        for (var i of keys) {
+            var comment_div = document.createElement("div");
+            var parent_comment_p = document.createElement("p");
+            parent_comment_p.innerHTML = comments_response[i]["text"];
+            var input = document.createElement("input");
+            var submit = document.createElement("input");
+            input.type = "text";
+            submit.type = "submit";
+            submit.value = "add comment";
+            comment_div.appendChild(parent_comment_p);
+            comment_div.appendChild(input);
+            comment_div.appendChild(submit);
+        }
     });
 }
 fetchAllComments();
