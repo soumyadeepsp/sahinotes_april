@@ -7,7 +7,8 @@ const noteSchema = new mongoose.Schema({
     file: {type: String, require: true}, // /uploads/notes/physics.pdf
     user: {type: mongoose.Schema.Types.ObjectId, require: true, ref: 'User'},
     likedUsers: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
-    comments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Comment'}]
+    comments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Comment'}],
+    views: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
 }, {
     timestamps: true
 });

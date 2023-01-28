@@ -192,6 +192,7 @@ module.exports.update_password_post = (req, res) => {
 
 module.exports.uploadNotes = (req, res) => {
     var id = req.user.id;
+    console.log("req body ===>", req.body);
     // all the form data comes in req.body
     Note.create({
         name: req.body.name,
@@ -204,6 +205,7 @@ module.exports.uploadNotes = (req, res) => {
         Note.uploadedFile(req, res, function(err) {
             if(err) {console.log('Error in saving file: ', err); return;}
             if (req.file) {
+                console.log("req body 2 ==> ", req.body);
                 note.file = req.file.filename;
                 note.name = req.body.name;
                 note.about = req.body.about;
@@ -238,10 +240,16 @@ module.exports.show_all_notes = (req, res) => {
 }
 
 module.exports.show_single_notes = async (req, res) => {
+    var userId = req.user.id;
+    var user = await User.findById(userId);
     var name = req.params.x;
     console.log(name);
     var note = await Note.findOne({name: name});
     var file = note.file;
+    if (!user.viewedNotes.includes(note._id)) {
+        user.viewedNotes.push(note._id);
+        note.views.push(userId);
+    }
     return res.render('notes', {
         filename: file
     });
@@ -272,7 +280,10 @@ module.exports.numberOfLikes = (req, res) => {
     var file = req.params.noteName;
     Note.findOne({file: file}, (err, note) => {
         if (err) {console.log(err); return;}
-        return res.status(200).json(note.likedUsers.length);
+        return res.status(200).json({
+            likes: note.likedUsers.length,
+            views: note.views.length
+        });
     })
 }
 
@@ -302,6 +313,7 @@ module.exports.addNewComment = async (req, res) => {
     var file = req.body.file;
     var userId = req.user.id;
     var text = req.body.text;
+    console.log("req body ===>", req.body);
     var note = await Note.findOne({file: file});
     var noteId = note._id;
     var type = req.body.type;

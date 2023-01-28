@@ -16,9 +16,18 @@ const axios = require('axios');
 const flash = require('connect-flash');
 const flashMiddleware = require('./config/middleware');
 const sassMiddleware = require('node-sass-middleware');
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
+const env = require('./environemnt');
+const morgan = require("morgan");
+const rfs = require("rotating-file-stream");
+const logDirectory = __dirname + "/logs";
+const logStream = rfs.createStream('access.log', {
+    interval: '1h',
+    path: logDirectory
+});
+app.use(morgan('dev', {stream: logStream}));
 
-app.use(bodyParser());
+// app.use(bodyParser());
 app.use(sassMiddleware({
     src: './assets/scss',
     dest: './assets/css',
@@ -47,7 +56,7 @@ app.use(session({
     cookie: {
         maxAge: (60*60*24*1000)
     },
-    store: mongoStore.create({mongoUrl: 'mongodb://localhost/sahinotes_development'})
+    store: mongoStore.create({mongoUrl: env.MONGO_URL})
 }));
 app.use(passport.initialize());
 app.use(passport.session());

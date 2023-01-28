@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
+const env = require('../environemnt');
 
-const url = "mongodb://localhost/sahinotes_development";
+const url = env.MONGO_URL;
 
 mongoose.connect(url);
 

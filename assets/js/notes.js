@@ -1,11 +1,13 @@
 var like_button = document.getElementById('like_button');
 var note_name = document.getElementById('note_name').innerHTML;
+var views = document.getElementById("views");
 fetch(`/users/get_number_of_likes/${note_name}`)
 .then((response) => response.json())
 .then((n) => {
     var likes = document.getElementById('likes');
     likes.innerHTML = n;
     console.log("n === ",n);
+    views.innerHTML = 
 })
 like_button.addEventListener('click', () => {
     fetch(`/users/like_notes/${note_name}`, {method: 'PUT'})
@@ -54,6 +56,7 @@ function fetchAllComments() {
             var comment_div = document.createElement("div");
             var parent_comment_p = document.createElement("p");
             parent_comment_p.innerHTML = comments_response[i]["text"];
+            console.log(comments_response[i]['text']);
             var input = document.createElement("input");
             var submit = document.createElement("input");
             input.type = "text";
@@ -62,6 +65,7 @@ function fetchAllComments() {
             comment_div.appendChild(parent_comment_p);
             comment_div.appendChild(input);
             comment_div.appendChild(submit);
+            comments_section.appendChild(comment_div);
         }
     });
 }
