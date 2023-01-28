@@ -117,3 +117,14 @@ development
 [0mGET /users/get_all_comments/22151069.pdf_1673190207352 [36m304[0m 24.464 ms - -[0m
 [0mGET /css/notes.css [33m404[0m 28.135 ms - 152[0m
 [0mGET /css/layout.css [32m200[0m 32.664 ms - -[0m
+[0mGET /users/profile [36m304[0m 149.428 ms - -[0m
+[0mGET /js/profile.js [36m304[0m 7.169 ms - -[0m
+[0mGET /js/layout.js [36m304[0m 5.726 ms - -[0m
+[0mGET /css/layout.css [32m200[0m 113.793 ms - -[0m
+[0mGET /css/profile.css [32m200[0m 111.163 ms - -[0m
+[0mGET /users/show_all_notes [36m304[0m 38.158 ms - -[0m
+[0mGET /users/show_single_notes/physics [32m200[0m 37.884 ms - 1190[0m
+[0mGET /css/layout.css [32m200[0m 6.709 ms - 21[0m
+[0mGET /js/layout.js [36m304[0m 5.894 ms - -[0m
+[0mGET /js/notes.js [32m200[0m 12.359 ms - 2622[0m
+[0mGET /css/notes.css [33m404[0m 15.640 ms - 152[0m

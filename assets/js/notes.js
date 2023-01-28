@@ -7,8 +7,7 @@ fetch(`/users/get_number_of_likes/${note_name}`)
     var likes = document.getElementById('likes');
     likes.innerHTML = n;
     console.log("n === ",n);
-    views.innerHTML = 
-})
+});
 like_button.addEventListener('click', () => {
     fetch(`/users/like_notes/${note_name}`, {method: 'PUT'})
     .then((response) => response.json())
