@@ -10,7 +10,7 @@ let transporter = nodemailer.createTransport({
     secure: false,
     auth: {
         user: 'soumyadeepsp@gmail.com',
-        pass: 'usokrqmxlsurejcu'
+        pass: 'cahqhrpisnuotouy'
         //app password is service specific
     }
 });

@@ -24,6 +24,15 @@ btn.addEventListener('click', () => {
             var filename = e.target.innerHTML;
             window.location = `/users/show_single_notes/${filename}`;
         });
+        var delete_button = document.createElement('button');
+        delete_button.innerHTML = 'delete';
+        delete_button.setAttribute('id', notes[i].file);
+        new_div.appendChild(delete_button);
+        delete_button.addEventListener('click', (e) => {
+            var name = e.target.getAttribute('id');
+            fetch(`/users/delete_note/${name}`, { method: 'DELETE' })
+            .then(() => console.log('Delete successful'));
+        })
         new_note_id.style.cursor = 'pointer';
         notes_view.appendChild(new_div);
     }

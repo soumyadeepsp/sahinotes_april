@@ -3,6 +3,7 @@ const forgotPasswordMailer = require('../mailers/forgot_password_mailer');
 const queue = require('../workers/acount_created_mailer_worker');
 const Note = require('../models/notes');
 const Comment = require('../models/comments');
+const fs = require('fs');
 
 module.exports.profile = (req, res) => {
     if (req.isAuthenticated()) {
@@ -243,12 +244,15 @@ module.exports.show_single_notes = async (req, res) => {
     var userId = req.user.id;
     var user = await User.findById(userId);
     var name = req.params.x;
-    console.log(name);
     var note = await Note.findOne({name: name});
     var file = note.file;
     if (!user.viewedNotes.includes(note._id)) {
+        console.log(user.viewedNotes);
         user.viewedNotes.push(note._id);
         note.views.push(userId);
+        console.log(user.viewedNotes);
+        note.save();
+        user.save();
     }
     return res.render('notes', {
         filename: file
@@ -304,7 +308,6 @@ module.exports.getComments = (req, res) => {
                 comments_respone[i]["child_comments"][j] = child_comment.text;
             }
         }
-        console.log(comments_respone);
         return res.status(200).json(comments_respone);
     });
 }
@@ -340,4 +343,51 @@ module.exports.addNewComment = async (req, res) => {
             await comment.save();
         })
     }
+}
+
+module.exports.deleteNote = async (req, res) => {
+    console.log("inside controller");
+    const file = req.params.note_file;
+    var note = await Note.findOne({file: file});
+    var author = await User.findById(note.user);
+    var index = author.notes.indexOf(note._id);
+    delete author.notes[index];
+    author.save();
+    var likedUsers = note.likedUsers;
+    var viewedUsers = note.views;
+    for (var i=0; i<likedUsers.length; i++) {
+        var u = await User.findById(likedUsers[i]);
+        var index = u.likedNotes.indexOf(note._id);
+        delete u.likedNotes[index];
+        u.save();
+    }
+    for (var i=0; i<viewedUsers.length; i++) {
+        var u = await User.findById(viewedUsers[i]);
+        var index = u.viewedNotes.indexOf(note._id);
+        delete u.viewedNotes[index];
+        u.save();
+    }
+    var parentComments = note.comments;
+    for (var i=0; i<parentComments.length; i++) {
+        var x = await Comment.findById(parentComments[i]);
+        var childComments = x.comments;
+        for (var j=0; j<childComments.length; j++) {
+            var y = await Comment.findById(childComments[j]);
+            var u = await User.findById(y.user);
+            var index = u.comments.indexOf(y._id);
+            delete u.comments[index];
+            u.save();
+            await Comment.findByIdAndDelete(y._id);
+        }
+        var u = await User.findById(x.user);
+        var index = u.comments.indexOf(x._id);
+        delete u.comments[index];
+        u.save();
+        await Comment.findByIdAndDelete(x._id);
+    }
+    await Note.findByIdAndDelete(note._id);
+    fs.unlink(`../assets/uploads/${file}`, function(err) {
+        if(err) return console.log(err);
+        console.log('file deleted successfully');
+    });
 }

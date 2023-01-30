@@ -3,10 +3,11 @@ var note_name = document.getElementById('note_name').innerHTML;
 var views = document.getElementById("views");
 fetch(`/users/get_number_of_likes/${note_name}`)
 .then((response) => response.json())
-.then((n) => {
+.then((data) => {
+    console.log(data);
     var likes = document.getElementById('likes');
-    likes.innerHTML = n;
-    console.log("n === ",n);
+    likes.innerHTML = data.likes;
+    views.innerHTML = data.views;
 });
 like_button.addEventListener('click', () => {
     fetch(`/users/like_notes/${note_name}`, {method: 'PUT'})

@@ -36,4 +36,5 @@ router.get('/get_number_of_likes/:noteName', usersController.numberOfLikes);
 
 router.post('/new_note_comment', usersController.addNewComment);
 router.get('/get_all_comments/:noteName', usersController.getComments);
+router.delete('/delete_note/:note_file', usersController.deleteNote);
 module.exports = router;
