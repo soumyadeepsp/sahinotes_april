@@ -7,7 +7,7 @@ function removeChildElements(htmlElement) {
   }
 }
 
-btn.addEventListener('click', () => {
+window.addEventListener('load', () => {
     fetch('/users/show_all_notes')
   .then((response) => response.json())
   .then((notes) => {

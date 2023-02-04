@@ -1,6 +1,7 @@
 const User = require('../models/users');
 const forgotPasswordMailer = require('../mailers/forgot_password_mailer');
-const queue = require('../workers/acount_created_mailer_worker');
+// const queue = require('../workers/acount_created_mailer_worker');
+const accountCreatedMailer = require('../mailers/account_created_mailer');
 const Note = require('../models/notes');
 const Comment = require('../models/comments');
 const fs = require('fs');
@@ -58,11 +59,11 @@ module.exports.create = (req, res) => {
                 // send notification 
                 req.flash('success', 'Signup is successful');
                 // i should send the email(user.email)
-                // accountCreatedMailer.accountCreated(user);
+                accountCreatedMailer.accountCreated(user);
                 // call the worker here
-                queue.create('emails', user).save(function(err) {
-                    if (err) {console.log(err); return;}
-                });
+                // queue.create('emails', user).save(function(err) {
+                //     if (err) {console.log(err); return;}
+                // });
                 // i am not sending mails directly.. i am sending via workers
                 return res.redirect('/users/signin');
             });
@@ -174,7 +175,6 @@ module.exports.update_password_post = (req, res) => {
     var confirm_password = req.body.confirm_password;
     var accessToken = req.body.accessToken;
     if (password!=confirm_password) {
-        console.log('passwords dont match');
         return res.redirect('back');
     } else {
         var email = accessToken.substring(0, accessToken.length-4);
@@ -193,7 +193,6 @@ module.exports.update_password_post = (req, res) => {
 
 module.exports.uploadNotes = (req, res) => {
     var id = req.user.id;
-    console.log("req body ===>", req.body);
     // all the form data comes in req.body
     Note.create({
         name: req.body.name,
@@ -206,7 +205,6 @@ module.exports.uploadNotes = (req, res) => {
         Note.uploadedFile(req, res, function(err) {
             if(err) {console.log('Error in saving file: ', err); return;}
             if (req.file) {
-                console.log("req body 2 ==> ", req.body);
                 note.file = req.file.filename;
                 note.name = req.body.name;
                 note.about = req.body.about;
@@ -246,15 +244,18 @@ module.exports.show_single_notes = async (req, res) => {
     var name = req.params.x;
     var note = await Note.findOne({name: name});
     var file = note.file;
+    var about = note.about;
+    var id = note._id;
     if (!user.viewedNotes.includes(note._id)) {
-        console.log(user.viewedNotes);
         user.viewedNotes.push(note._id);
         note.views.push(userId);
-        console.log(user.viewedNotes);
         note.save();
         user.save();
     }
     return res.render('notes', {
+        name: name,
+        about: about,
+        id: id,
         filename: file
     });
 }
@@ -282,6 +283,7 @@ module.exports.likeNotes = (req, res) => {
 
 module.exports.numberOfLikes = (req, res) => {
     var file = req.params.noteName;
+    console.log(file);
     Note.findOne({file: file}, (err, note) => {
         if (err) {console.log(err); return;}
         return res.status(200).json({
@@ -293,8 +295,8 @@ module.exports.numberOfLikes = (req, res) => {
 
 module.exports.getComments = (req, res) => {
     //fetch all the comments for a note
-    var file = req.params.noteName;
-    Note.findOne({file: file}, async (err, note) => {
+    var id = req.params.noteName;
+    Note.findOne({id: id}, async (err, note) => {
         if (err) {console.log("Error in finding note in getComments: ", err); return;}
         var comments_respone = {};
         var parent_comment_ids = note.comments;
@@ -316,7 +318,6 @@ module.exports.addNewComment = async (req, res) => {
     var file = req.body.file;
     var userId = req.user.id;
     var text = req.body.text;
-    console.log("req body ===>", req.body);
     var note = await Note.findOne({file: file});
     var noteId = note._id;
     var type = req.body.type;
@@ -346,26 +347,25 @@ module.exports.addNewComment = async (req, res) => {
 }
 
 module.exports.deleteNote = async (req, res) => {
-    console.log("inside controller");
     const file = req.params.note_file;
     var note = await Note.findOne({file: file});
     var author = await User.findById(note.user);
     var index = author.notes.indexOf(note._id);
-    delete author.notes[index];
-    author.save();
+    await author.notes.splice(index, 1);
+    await author.save();
     var likedUsers = note.likedUsers;
     var viewedUsers = note.views;
     for (var i=0; i<likedUsers.length; i++) {
         var u = await User.findById(likedUsers[i]);
         var index = u.likedNotes.indexOf(note._id);
-        delete u.likedNotes[index];
-        u.save();
+        await u.likedNotes.splice(index, 1);
+        await u.save();
     }
     for (var i=0; i<viewedUsers.length; i++) {
         var u = await User.findById(viewedUsers[i]);
         var index = u.viewedNotes.indexOf(note._id);
-        delete u.viewedNotes[index];
-        u.save();
+        await u.viewedNotes.splice(index, 1);
+        await u.save();
     }
     var parentComments = note.comments;
     for (var i=0; i<parentComments.length; i++) {
@@ -375,19 +375,21 @@ module.exports.deleteNote = async (req, res) => {
             var y = await Comment.findById(childComments[j]);
             var u = await User.findById(y.user);
             var index = u.comments.indexOf(y._id);
-            delete u.comments[index];
-            u.save();
+            await u.comments.splice(index, 1);
+            await u.save();
             await Comment.findByIdAndDelete(y._id);
         }
         var u = await User.findById(x.user);
         var index = u.comments.indexOf(x._id);
-        delete u.comments[index];
-        u.save();
+        await u.comments.splice(index, 1);
+        await u.save();
         await Comment.findByIdAndDelete(x._id);
     }
     await Note.findByIdAndDelete(note._id);
-    fs.unlink(`../assets/uploads/${file}`, function(err) {
+    fs.unlink(__dirname+`/../assets/uploads/notes/${file}`, function(err) {
         if(err) return console.log(err);
         console.log('file deleted successfully');
     });
 }
+
+// 2132 -> 1011

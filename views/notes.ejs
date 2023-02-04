@@ -2,9 +2,10 @@
 <div id="heading">
     <h1>notes page</h1>
     <h1 id="note_name"><%=locals.filename%></h1>
+    <h1 id="note_id"><%=locals.id%></h1>
 </div>
 <div id="display_notes">
-    <iframe href="/uploads/notes/<%=locals.filename%>" width="400px" height="400px"></iframe>
+    <image href="/uploads/notes/<%=locals.filename%>" width="400px" height="400px">
 </div>
 <button id="like_button">like</button>
 <p id="likes"></p>

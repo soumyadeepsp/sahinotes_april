@@ -27,7 +27,7 @@ const logStream = rfs.createStream('access.log', {
 });
 app.use(morgan('dev', {stream: logStream}));
 
-// app.use(bodyParser());
+app.use(bodyParser());
 app.use(sassMiddleware({
     src: './assets/scss',
     dest: './assets/css',

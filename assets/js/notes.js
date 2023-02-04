@@ -1,6 +1,8 @@
 var like_button = document.getElementById('like_button');
 var note_name = document.getElementById('note_name').innerHTML;
 var views = document.getElementById("views");
+var note_id = document.getElementById('note_id');
+note_id.style.display = "none";
 fetch(`/users/get_number_of_likes/${note_name}`)
 .then((response) => response.json())
 .then((data) => {
@@ -47,7 +49,7 @@ add_comment_to_note_btn.addEventListener("click", function() {
 });
 
 function fetchAllComments() {
-    fetch(`/users/get_all_comments/${note_name}`)
+    fetch(`/users/get_all_comments/${note_id.innerHTML}`)
     .then((response) => response.json())
     .then((comments_response) => {
         console.log(comments_response);
