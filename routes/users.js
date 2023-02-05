@@ -4,7 +4,7 @@ const router = express.Router();// router instance
 
 const usersController = require('../controllers/users_controller');
 
-router.get('/profile', usersController.profile);
+router.get('/profile/:logged_is_user_id', usersController.profile);
 router.get('/signin', usersController.signin); //browser is calling
 router.get('/signin_failure', usersController.signinFailure); //server is calling
 router.get('/signup', usersController.signup); //browser is calling
@@ -37,4 +37,7 @@ router.get('/get_number_of_likes/:noteName', usersController.numberOfLikes);
 router.post('/new_note_comment', usersController.addNewComment);
 router.get('/get_all_comments/:noteName', usersController.getComments);
 router.delete('/delete_note/:note_file', usersController.deleteNote);
+
+router.get('/get_all_users', usersController.getAllUsers);
+
 module.exports = router;

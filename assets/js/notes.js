@@ -52,21 +52,52 @@ function fetchAllComments() {
     fetch(`/users/get_all_comments/${note_id.innerHTML}`)
     .then((response) => response.json())
     .then((comments_response) => {
-        console.log(comments_response);
         var keys = Object.keys(comments_response);
         for (var i of keys) {
             var comment_div = document.createElement("div");
+            comment_div.setAttribute('id', 'comment_div');
             var parent_comment_p = document.createElement("p");
             parent_comment_p.innerHTML = comments_response[i]["text"];
-            console.log(comments_response[i]['text']);
             var input = document.createElement("input");
             var submit = document.createElement("input");
+            submit.setAttribute('id', i);
+            input.classList.add(i);
+            submit.addEventListener('click', function(e) {
+                e.preventDefault();
+                var id = e.target.id;
+                var comment_text = document.getElementsByClassName(id)[0];
+                if (comment_text.value!="") {
+                    var data = {
+                        "file": note_name,
+                        "text": comment_text.value,
+                        "type": "Comments",
+                        "comment": id
+                    }
+                    fetch(`/users/new_note_comment`, {
+                        method: 'POST',
+                        mode: 'cors',
+                        cache: 'no-cache',
+                        credentials: 'same-origin',
+                        headers: {
+                          'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    add_comment_to_note.value = "";
+                }
+            });
             input.type = "text";
             submit.type = "submit";
             submit.value = "add comment";
             comment_div.appendChild(parent_comment_p);
             comment_div.appendChild(input);
             comment_div.appendChild(submit);
+            var child_comment_ids = Object.keys(comments_response[i]['child_comments']);
+            for (var j=0; j<child_comment_ids.length; j++) {
+                var p = document.createElement('p');
+                p.innerHTML = comments_response[i]['child_comments'][child_comment_ids[j]];
+                comment_div.appendChild(p);
+            }
             comments_section.appendChild(comment_div);
         }
     });

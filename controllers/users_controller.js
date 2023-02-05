@@ -7,9 +7,17 @@ const Comment = require('../models/comments');
 const fs = require('fs');
 
 module.exports.profile = (req, res) => {
+    console.log(req.user);
+    var logged_in_user = req.user._id;
+    var profile_user_id = req.params.logged_is_user_id;
+    console.log("logged_in_user ", logged_in_user);
+    console.log("profile_user_id ", profile_user_id);
     if (req.isAuthenticated()) {
         return res.render('profile');
     } else {
+        if (logged_in_user!=profile_user_id) {
+            return res.render('profile');
+        }
         return res.render('signin');
     }
 }
@@ -296,7 +304,7 @@ module.exports.numberOfLikes = (req, res) => {
 module.exports.getComments = (req, res) => {
     //fetch all the comments for a note
     var id = req.params.noteName;
-    Note.findOne({id: id}, async (err, note) => {
+    Note.findById(id, async (err, note) => {
         if (err) {console.log("Error in finding note in getComments: ", err); return;}
         var comments_respone = {};
         var parent_comment_ids = note.comments;
@@ -342,7 +350,7 @@ module.exports.addNewComment = async (req, res) => {
             if (err) {console.log("Error in finding parent comment in addNewComment: ", err); return;}
             await comment.comments.push(new_comment._id);
             await comment.save();
-        })
+        });
     }
 }
 
@@ -392,4 +400,8 @@ module.exports.deleteNote = async (req, res) => {
     });
 }
 
-// 2132 -> 1011
+module.exports.getAllUsers = async (req, res) => {
+    var users = await User.find();
+    console.log(users);
+    return res.status(200).json(users);
+}
