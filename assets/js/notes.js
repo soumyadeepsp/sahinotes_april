@@ -12,6 +12,7 @@ fetch(`/users/get_number_of_likes/${note_name}`)
     views.innerHTML = data.views;
 });
 like_button.addEventListener('click', () => {
+    console.log("like clicked");
     fetch(`/users/like_notes/${note_name}`, {method: 'PUT'})
     .then((response) => response.json())
     .then(() => {

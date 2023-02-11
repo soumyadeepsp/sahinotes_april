@@ -63,6 +63,7 @@ app.use(passport.session());
 // flash uses sessions cookie so call it after calling session
 app.use(flash());
 app.use(flashMiddleware.flash);
+app.use(passport.setAuthenticatedUser);
 
 app.use('/', require('./routes'));
 

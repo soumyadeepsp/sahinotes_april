@@ -1,8 +1,9 @@
 <link rel="stylesheet" type="text/css" href="/css/profile.css">
 <div id="heading">
     <h1>profile page</h1>
+    <p id="logged_in_user_id"><%- locals.user %></p>
 </div>
-<form action="/users/upload_notes" enctype="multipart/form-data" method="POST">
+<form id="upload_form" action="/users/upload_notes" enctype="multipart/form-data" method="POST">
     <input id="name" type="text" name="name" placeholder="Name of the notes" required>
     <input id="about" type="text" name="about" placeholder="About of the notes" required>
     <input type="file" name="notes" required>
@@ -14,4 +15,7 @@
 <div id="notes_view">
     
 </div>
+<div id="users_view">
+    
+</div> 
 <script src="/js/profile.js"></script>

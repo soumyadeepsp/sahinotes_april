@@ -84,8 +84,9 @@ module.exports.create = (req, res) => {
 
 module.exports.createSession = (req, res) => {
     // show notification
+    var userId = req.user.id;
     req.flash('success', 'Login is successful');
-    return res.redirect('/users/profile');
+    return res.redirect(`/users/profile/${userId}`);
 }
 
 module.exports.logout = (req, res) => {
@@ -229,7 +230,7 @@ module.exports.uploadNotes = (req, res) => {
 }
 
 module.exports.show_all_notes = (req, res) => {
-    var id = req.user.id;
+    var id = req.params.profile_id;
     User.findById(id, async (err, user) => {
         if (err) {console.log('Error in finding user in show_all_notes: ', err); return;}
         var notesids = user.notes;
@@ -401,7 +402,13 @@ module.exports.deleteNote = async (req, res) => {
 }
 
 module.exports.getAllUsers = async (req, res) => {
-    var users = await User.find();
-    console.log(users);
-    return res.status(200).json(users);
+    if (req.isAuthenticated()) {
+        var users = await User.find();
+        console.log(users);
+        var output = [];
+        for (var i=0; i<users.length; i++) {
+            output.push({id: users[i]._id, name: users[i].name});
+        }
+        return res.status(200).json(output);
+    }
 }

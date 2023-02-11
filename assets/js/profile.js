@@ -1,5 +1,8 @@
 let btn = document.getElementById('btn');
 var notes_view = document.getElementById('notes_view');
+var upload_form = document.getElementById('upload_form');
+var url = window.location.href;
+var profile_id = url.substring(url.indexOf('profile/')+8);
 
 function removeChildElements(htmlElement) {
   while (htmlElement.firstChild) {
@@ -8,7 +11,7 @@ function removeChildElements(htmlElement) {
 }
 
 window.addEventListener('load', () => {
-    fetch('/users/show_all_notes')
+    fetch(`/users/show_all_notes/${profile_id}`)
   .then((response) => response.json())
   .then((notes) => {
     removeChildElements(notes_view);
@@ -39,3 +42,35 @@ window.addEventListener('load', () => {
   })
   .catch((error) => console.log(error));
 });
+
+var users_view = document.getElementById('users_view');
+console.log(users_view);
+window.addEventListener('load', () => {
+  fetch('/users/get_all_users')
+.then((response) => response.json())
+.then((users) => {
+  removeChildElements(users_view);
+  console.log(users);
+  for (var i=0; i<users.length; i++) {
+      var list_item = document.createElement('p');
+      list_item.innerHTML = users[i].name;
+      list_item.setAttribute('id', users[i].id);
+      list_item.style.cursor = 'pointer';
+      list_item.addEventListener('click', function(e) {
+        var id = e.target.getAttribute('id');
+        window.location.href = `/users/profile/${id}`;
+      });
+      console.log(users_view);
+      users_view.appendChild(list_item);
+  }
+})
+.catch((error) => console.log(error));
+});
+
+var logged_in_user_id = document.getElementById('logged_in_user_id');
+console.log(logged_in_user_id);
+logged_in_user_id.style.display = 'none';
+logged_in_user_id = logged_in_user_id.innerHTML;
+if (logged_in_user_id!=profile_id) {
+  upload_form.style.display = 'none';
+}

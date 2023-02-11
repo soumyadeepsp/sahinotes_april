@@ -29,7 +29,7 @@ router.post('/update_password', usersController.update_password_post);
 router.post('/forgot_password', usersController.forgot_password_post);
 router.post('/upload_notes', usersController.uploadNotes);
 
-router.get('/show_all_notes', usersController.show_all_notes);
+router.get('/show_all_notes/:profile_id', usersController.show_all_notes);
 router.get('/show_single_notes/:x', usersController.show_single_notes);
 router.put('/like_notes/:noteName', usersController.likeNotes);
 router.get('/get_number_of_likes/:noteName', usersController.numberOfLikes);
@@ -38,6 +38,6 @@ router.post('/new_note_comment', usersController.addNewComment);
 router.get('/get_all_comments/:noteName', usersController.getComments);
 router.delete('/delete_note/:note_file', usersController.deleteNote);
 
-router.get('/get_all_users', usersController.getAllUsers);
+router.get('/get_all_users', passport.checkAuthentication, usersController.getAllUsers);
 
 module.exports = router;
