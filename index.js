@@ -25,8 +25,10 @@ const logStream = rfs.createStream('access.log', {
     interval: '1h',
     path: logDirectory
 });
-app.use(morgan('dev', {stream: logStream}));
+const expressFileUpload = require('express-fileupload');
 
+app.use(morgan('dev', {stream: logStream}));
+app.use(expressFileUpload({}));
 app.use(bodyParser());
 app.use(sassMiddleware({
     src: './assets/scss',

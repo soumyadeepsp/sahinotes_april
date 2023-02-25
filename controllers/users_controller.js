@@ -7,11 +7,8 @@ const Comment = require('../models/comments');
 const fs = require('fs');
 
 module.exports.profile = (req, res) => {
-    console.log(req.user);
     var logged_in_user = req.user._id;
     var profile_user_id = req.params.logged_is_user_id;
-    console.log("logged_in_user ", logged_in_user);
-    console.log("profile_user_id ", profile_user_id);
     if (req.isAuthenticated()) {
         return res.render('profile');
     } else {
@@ -202,31 +199,30 @@ module.exports.update_password_post = (req, res) => {
 
 module.exports.uploadNotes = (req, res) => {
     var id = req.user.id;
-    // all the form data comes in req.body
-    Note.create({
-        name: req.body.name,
-        about: req.body.about,
-        file: "",
-        user: id
-    }, function(err, note) {
-        if (err) {console.log('Error in creating new note: ', err); return;}
-        //statics function cannot be called via object but just via schema
-        Note.uploadedFile(req, res, function(err) {
-            if(err) {console.log('Error in saving file: ', err); return;}
-            if (req.file) {
-                note.file = req.file.filename;
-                note.name = req.body.name;
-                note.about = req.body.about;
-                note.save();
+    var name = req.body.name;
+    var about = req.body.about;
+    if (req.files) {
+        var filename = req.files.notes.name;
+        var dotindex = filename.indexOf(".");
+        filename = filename.substring(0, dotindex)+Date.now()+filename.substring(dotindex, filename.length);
+        req.files.notes.mv(__dirname+"/../assets/uploads/notes/"+filename, function(err) {
+            if (err) {console.log('Error in moving file in folder: ', err); return res.send(err);}
+            Note.create({
+                name: name,
+                about: about,
+                file: filename,
+                user: id
+            }, function(err, note) {
+                if (err) {console.log('Error in saving note in DB: ', err); return res.send(err);}
                 User.findById(id, function(err, user) {
-                    if (err) {console.log('Error in adding file to user: ', err); return;}
+                    if (err) {console.log('Error in finding user in upload notes: ', err); return res.send(err);}
                     user.notes.push(note.id);
                     user.save();
-                });
-            }
-        });
-    });
-    return res.redirect('profile');
+                })
+            })
+        })
+    }
+    return res.redirect(`/users/profile/${id}`);
 }
 
 module.exports.show_all_notes = (req, res) => {
@@ -292,7 +288,6 @@ module.exports.likeNotes = (req, res) => {
 
 module.exports.numberOfLikes = (req, res) => {
     var file = req.params.noteName;
-    console.log(file);
     Note.findOne({file: file}, (err, note) => {
         if (err) {console.log(err); return;}
         return res.status(200).json({
@@ -404,7 +399,6 @@ module.exports.deleteNote = async (req, res) => {
 module.exports.getAllUsers = async (req, res) => {
     if (req.isAuthenticated()) {
         var users = await User.find();
-        console.log(users);
         var output = [];
         for (var i=0; i<users.length; i++) {
             output.push({id: users[i]._id, name: users[i].name});
