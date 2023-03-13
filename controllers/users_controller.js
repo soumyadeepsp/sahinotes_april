@@ -6,7 +6,21 @@ const Note = require('../models/notes');
 const Comment = require('../models/comments');
 const fs = require('fs');
 
+module.exports.checkAuthentication = (req, res) => {
+    console.log("inside check auth controller");
+    console.log("logged in user = "+req.cookies.sahinotes);
+    console.log(req.isAuthenticated());
+    if (req.isAuthenticated()) {
+        console.log("user is logged in");
+        return res.json({success: true});
+    } else {
+        console.log("user is already logged out");
+        return res.json({success: false});
+    }
+}
+
 module.exports.profile = (req, res) => {
+    console.log("logged in user = "+req.user);
     var logged_in_user = req.user._id;
     var profile_user_id = req.params.logged_is_user_id;
     if (req.isAuthenticated()) {
@@ -40,26 +54,36 @@ module.exports.update_password = (req, res) => {
     res.render('update_password');
 }
 
+module.exports.invalidauth = (req, res) => {
+    return res.json({sucess: false, message: "Passwords is incorrect!"});
+}
+
 module.exports.create = (req, res) => {
-    if (req.body.password != req.body.confirm_password) {
-        return res.redirect('back');
+    console.log(req.body);
+    var email = req.body.email
+    if (email.substring(email.length-4, email.length)!='.com') {
+        return res.status(401).json({sucess: false, message: "Email not valid"});
+    }
+    if (req.body.password != req.body.confirmPassword) {
+        return res.status(401).json({sucess: false, message: "Passwords don't match"});
     }
     //search if this is a new user or an old one
     // if new user -> create user -> send to sign in page
     // if old user -> send to sign in page
     User.findOne({email: req.body.email}, function(err, user) {
         if(err) {console.log('Error in finding user in create controller: ', err);
-            return res.redirect('back')
+            return res.status(201).json({sucess: false});
         }
         // if condition is true if user==null/undefined which means no prevous entry
         if (!user) {
+            console.log("user getting created");
             User.create({
                 name: req.body.name,
                 email: req.body.email,
                 password: req.body.password
             }, function(err, user) {
                 if (err) {console.log('Error in creating user in create controller: ', err);
-                    return res.redirect('back')
+                    return res.json({sucess: false});;
                 }
                 // send notification 
                 req.flash('success', 'Signup is successful');
@@ -70,27 +94,41 @@ module.exports.create = (req, res) => {
                 //     if (err) {console.log(err); return;}
                 // });
                 // i am not sending mails directly.. i am sending via workers
-                return res.redirect('/users/signin');
+                // return res.redirect('/users/signin');
+                console.log("user got created");
+                return res.json({sucess: true});
             });
         } else {
-            return res.redirect('/users/signin');
+            // return res.redirect('/users/signin');
+            return res.json({sucess: false});
         }
     });
 }
 // notes and notelists schemas dont have any records till now
 
-module.exports.createSession = (req, res) => {
+module.exports.createSession = async (req, res) => {
     // show notification
     var userId = req.user.id;
     req.flash('success', 'Login is successful');
-    return res.redirect(`/users/profile/${userId}`);
+    // return res.redirect(`/users/profile/${userId}`);
+    console.log(userId);
+    const user = await User.findById(userId);
+    console.log("is user logged in = ", req.isAuthenticated());
+    console.log("logged in user = "+req.user);
+    return res.json({success: true, user: {id: userId, name:user.name}});
 }
 
 module.exports.logout = (req, res) => {
-    req.logout(function(err) {
-        if (err) {console.log('Error in logging out: ', err); return;}
-    });
-    return res.redirect('/users/signin');
+    console.log("logged in user: "+req);
+    if (req.isAuthenticated()) {
+        req.logout(function(err) {
+            if (err) {console.log('Error in logging out: ', err); return res.json({success: false});}
+        });
+        return res.json({success: true});
+    } else {
+        console.log("user is logged out");
+        return res.json({success: false});
+    }
 }
 
 module.exports.verifyMobile = (req, res) => {
@@ -198,31 +236,33 @@ module.exports.update_password_post = (req, res) => {
 }
 
 module.exports.uploadNotes = (req, res) => {
-    var id = req.user.id;
-    var name = req.body.name;
-    var about = req.body.about;
-    if (req.files) {
-        var filename = req.files.notes.name;
-        var dotindex = filename.indexOf(".");
-        filename = filename.substring(0, dotindex)+Date.now()+filename.substring(dotindex, filename.length);
-        req.files.notes.mv(__dirname+"/../assets/uploads/notes/"+filename, function(err) {
-            if (err) {console.log('Error in moving file in folder: ', err); return res.send(err);}
-            Note.create({
-                name: name,
-                about: about,
-                file: filename,
-                user: id
-            }, function(err, note) {
-                if (err) {console.log('Error in saving note in DB: ', err); return res.send(err);}
-                User.findById(id, function(err, user) {
-                    if (err) {console.log('Error in finding user in upload notes: ', err); return res.send(err);}
-                    user.notes.push(note.id);
-                    user.save();
-                })
-            })
-        })
-    }
-    return res.redirect(`/users/profile/${id}`);
+    var name = req.query.name;
+    var about = req.query.about;
+    var id = req.query.id;
+    console.log(name, about, id);
+    return;
+    // if (req.files) {
+    //     var filename = req.files.notes.name;
+    //     var dotindex = filename.indexOf(".");
+    //     filename = filename.substring(0, dotindex)+Date.now()+filename.substring(dotindex, filename.length);
+    //     req.files.notes.mv(__dirname+"/../assets/uploads/notes/"+filename, function(err) {
+    //         if (err) {console.log('Error in moving file in folder: ', err); return res.send(err);}
+    //         Note.create({
+    //             name: name,
+    //             about: about,
+    //             file: filename,
+    //             user: id
+    //         }, function(err, note) {
+    //             if (err) {console.log('Error in saving note in DB: ', err); return res.send(err);}
+    //             User.findById(id, function(err, user) {
+    //                 if (err) {console.log('Error in finding user in upload notes: ', err); return res.send(err);}
+    //                 user.notes.push(note.id);
+    //                 user.save();
+    //             })
+    //         })
+    //     })
+    // }
+    // return res.redirect(`/users/profile/${id}`);
 }
 
 module.exports.show_all_notes = (req, res) => {

@@ -15,10 +15,12 @@ passport.use(new localStrategy({usernameField: 'email'}, function(email, passwor
 }));
 
 passport.serializeUser(function(user, done) {
+    console.log("inside serialiser");
     done(null, user._id);
 });
 
 passport.deserializeUser(function(id, done) {
+    console.log("inside deserialiser");
     User.findById(id, function(err, user) {
         if (err) {console.log('Error in deserializeUser: ', err);
             return done(err);

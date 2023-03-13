@@ -26,7 +26,12 @@ const logStream = rfs.createStream('access.log', {
     path: logDirectory
 });
 const expressFileUpload = require('express-fileupload');
+var cors = require('cors');
 
+app.use(cors({
+    origin: "http://localhost:3006",
+    credentials: true
+}));
 app.use(morgan('dev', {stream: logStream}));
 app.use(expressFileUpload({}));
 app.use(bodyParser());
@@ -51,12 +56,18 @@ app.use(cookieParser()); //helps in putting cookies to req and taking from res
 
 app.use(express.static('./assets'));
 // app.use('/uploads/notes/', express.static('/uploads/notes/'));
-
+const cookieExpirationDate = new Date();
+const cookieExpirationDays = 365;
+cookieExpirationDate.setDate(cookieExpirationDate.getDate() + cookieExpirationDays);
 app.use(session({
     name: 'sahinotes',
+    resave: true,
+    saveUninitialized: true,
     secret: 'codingninjas',
     cookie: {
-        maxAge: (60*60*24*1000)
+        maxAge: (60*60*24*1000),
+        secure: 'auto',
+        sameSite: 'lax'
     },
     store: mongoStore.create({mongoUrl: env.MONGO_URL})
 }));

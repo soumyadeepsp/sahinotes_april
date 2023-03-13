@@ -11,8 +11,9 @@ router.get('/signup', usersController.signup); //browser is calling
 
 router.post('/create', usersController.create);
 //called create during signup and then redirected to sign in page
-router.post('/create_session', passport.authenticate('local', {failureRedirect: '/users/signin', failureFlash: 'Signin is not successful'}) ,usersController.createSession);
+router.post('/create_session', passport.authenticate('local', {session: true, failureRedirect: '/users/invalidauth', failureFlash: 'Signin is not successful'}) ,usersController.createSession);
 //called create session during signin and thenr edirected to profile page
+router.get('/invalidauth', usersController.invalidauth);
 
 router.get('/logout', usersController.logout);
 router.get('/auth/google',  passport.authenticate('google', {scope: ['profile', 'email']}), usersController.createSession);
@@ -39,5 +40,6 @@ router.get('/get_all_comments/:noteName', usersController.getComments);
 router.delete('/delete_note/:note_file', usersController.deleteNote);
 
 router.get('/get_all_users', passport.checkAuthentication, usersController.getAllUsers);
+router.get('/check_authentication', usersController.checkAuthentication);
 
 module.exports = router;
