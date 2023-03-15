@@ -31,7 +31,7 @@ router.post('/forgot_password', usersController.forgot_password_post);
 router.post('/upload_notes', usersController.uploadNotes);
 
 router.get('/show_all_notes/:profile_id', usersController.show_all_notes);
-router.get('/show_single_notes/:x', usersController.show_single_notes);
+router.get('/show_single_notes/:file', usersController.show_single_notes);
 router.put('/like_notes/:noteName', usersController.likeNotes);
 router.get('/get_number_of_likes/:noteName', usersController.numberOfLikes);
 

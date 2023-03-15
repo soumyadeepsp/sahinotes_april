@@ -111,10 +111,16 @@ module.exports.createSession = async (req, res) => {
     var userId = req.user.id;
     req.flash('success', 'Login is successful');
     // return res.redirect(`/users/profile/${userId}`);
-    console.log(userId);
     const user = await User.findById(userId);
-    console.log("is user logged in = ", req.isAuthenticated());
-    console.log("logged in user = "+req.user);
+    console.log({id: userId, name:user.name});
+    // var currentDate = new Date();
+    // var expiryDate = currentDate.setHours(currentDate.getHours() + 24);
+    // expiryDate = new Date(expiryDate);
+    // var session = await Session.create({
+    //     id: userId,
+    //     expires: expiryDate
+    // });
+    // console.log(session);
     return res.json({success: true, user: {id: userId, name:user.name}});
 }
 
@@ -284,10 +290,12 @@ module.exports.show_all_notes = (req, res) => {
 }
 
 module.exports.show_single_notes = async (req, res) => {
-    var userId = req.user.id;
+    console.log(req.params);
+    var userId = "6404a2886e692a00ddef59c7";
+    console.log("user id = ", userId);
     var user = await User.findById(userId);
-    var name = req.params.x;
-    var note = await Note.findOne({name: name});
+    var name = req.params.file;
+    var note = await Note.findOne({file: name});
     var file = note.file;
     var about = note.about;
     var id = note._id;
@@ -297,12 +305,19 @@ module.exports.show_single_notes = async (req, res) => {
         note.save();
         user.save();
     }
-    return res.render('notes', {
+    return res.status(200).json({
+        success: true,
         name: name,
         about: about,
         id: id,
         filename: file
     });
+    // return res.render('notes', {
+    //     name: name,
+    //     about: about,
+    //     id: id,
+    //     filename: file
+    // });
 }
 
 module.exports.likeNotes = (req, res) => {
