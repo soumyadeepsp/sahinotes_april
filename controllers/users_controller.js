@@ -5,17 +5,23 @@ const accountCreatedMailer = require('../mailers/account_created_mailer');
 const Note = require('../models/notes');
 const Comment = require('../models/comments');
 const fs = require('fs');
+const Session = require('../models/sessions');
 
-module.exports.checkAuthentication = (req, res) => {
-    console.log("inside check auth controller");
-    console.log("logged in user = "+req.cookies.sahinotes);
-    console.log(req.isAuthenticated());
-    if (req.isAuthenticated()) {
-        console.log("user is logged in");
-        return res.json({success: true});
+module.exports.checkAuthentication = async (req, res) => {
+    var id = req.params.id;
+    var session = await Session.findOne({id: id});
+    var expiryDate = session.expires;
+    var currentDate = new Date();
+    if (currentDate > expiryDate) {
+        return res.json({success: false, user: {id: undefined, name: undefined}});
     } else {
-        console.log("user is already logged out");
-        return res.json({success: false});
+        var user = await User.findById(id);
+        var currentDate = new Date();
+        var expiryDate = currentDate.setHours(currentDate.getHours() + 24);
+        expiryDate = new Date(expiryDate);
+        session.expires = expiryDate;
+        await session.save();
+        return res.json({success: true, user: {id: id, name: user.name}});
     }
 }
 
@@ -108,33 +114,36 @@ module.exports.create = (req, res) => {
 
 module.exports.createSession = async (req, res) => {
     // show notification
+    console.log(user);
     var userId = req.user.id;
     req.flash('success', 'Login is successful');
     // return res.redirect(`/users/profile/${userId}`);
     const user = await User.findById(userId);
     console.log({id: userId, name:user.name});
-    // var currentDate = new Date();
-    // var expiryDate = currentDate.setHours(currentDate.getHours() + 24);
-    // expiryDate = new Date(expiryDate);
-    // var session = await Session.create({
-    //     id: userId,
-    //     expires: expiryDate
-    // });
-    // console.log(session);
+    var currentDate = new Date();
+    var expiryDate = currentDate.setHours(currentDate.getHours() + 24);
+    expiryDate = new Date(expiryDate);
+    var session = await Session.create({
+        id: userId,
+        expires: expiryDate
+    });
+    console.log(session);
     return res.json({success: true, user: {id: userId, name:user.name}});
 }
 
-module.exports.logout = (req, res) => {
-    console.log("logged in user: "+req);
-    if (req.isAuthenticated()) {
-        req.logout(function(err) {
-            if (err) {console.log('Error in logging out: ', err); return res.json({success: false});}
-        });
-        return res.json({success: true});
-    } else {
-        console.log("user is logged out");
-        return res.json({success: false});
-    }
+module.exports.logout = async (req, res) => {
+    // if (req.isAuthenticated()) {
+    //     req.logout(function(err) {
+    //         if (err) {console.log('Error in logging out: ', err); return res.json({success: false});}
+    //     });
+    //     return res.json({success: true});
+    // } else {
+    //     console.log("user is logged out");
+    //     return res.json({success: false});
+    // }
+    var id = req.params.id;
+    var session = await Session.deleteOne({id: id});
+    return res.json({success: true});
 }
 
 module.exports.verifyMobile = (req, res) => {

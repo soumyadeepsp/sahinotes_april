@@ -15,7 +15,7 @@ router.post('/create_session', passport.authenticate('local', {session: true, fa
 //called create session during signin and thenr edirected to profile page
 router.get('/invalidauth', usersController.invalidauth);
 
-router.get('/logout', usersController.logout);
+router.get('/logout/:id', usersController.logout);
 router.get('/auth/google',  passport.authenticate('google', {scope: ['profile', 'email']}), usersController.createSession);
 router.get('/auth/google/callback',  passport.authenticate('google', {failureRedirect: '/users/signin'}), usersController.createSession);
 //in both signup and signin, we will call createsession and redirect to profile page
@@ -40,6 +40,6 @@ router.get('/get_all_comments/:noteName', usersController.getComments);
 router.delete('/delete_note/:note_file', usersController.deleteNote);
 
 router.get('/get_all_users', passport.checkAuthentication, usersController.getAllUsers);
-router.get('/check_authentication', usersController.checkAuthentication);
+router.get('/check_authentication/:id', usersController.checkAuthentication);
 
 module.exports = router;

@@ -10,6 +10,7 @@ passport.use(new googleStrategy({
 }, function(accessToken, refreshToken, profile, done) {
     User.find({email: profile.emails[0].value}, function(err, user) {
         if (err) {console.log('Error in finding user in google strategy: ', err); return done(err, false);}
+        console.log("inside google passport = "+user);
         if (user) {
             return done(null, user);
         } else {
